@@ -19,6 +19,13 @@ APP_PATH="${SCRIPT_DIR}/../apps/${input}"
 
 
 git init --bare "${REPO_PATH}"
+
+if [ -d "${APP_PATH}" ];
+then 
+    echo "APP already exist"
+    exit 1
+fi
+
 mkdir -p "${APP_PATH}"
  
 cat << EOF > "${REPO_PATH}/hooks/post-receive"
