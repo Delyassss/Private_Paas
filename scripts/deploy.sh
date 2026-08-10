@@ -1,6 +1,8 @@
 #!/bin/bash
 
 app_name="$1"
+ref_name="$2"
+
 SCRIPT_DIR="$(cd $(dirname "$0") && pwd)"
 
 REPO_PATH="${SCRIPT_DIR}/../repos/${app_name}.git"
@@ -17,7 +19,7 @@ then
     exit 1
 fi
 
-git --work-tree="${APP_PATH}" --git-dir="${REPO_PATH}" checkout -f main
+git --work-tree="${APP_PATH}" --git-dir="${REPO_PATH}" checkout -f ${ref_name}
 
 
 
