@@ -17,6 +17,7 @@ then
     exit 1
 fi
 
+git --work-tree="${APP_PATH}" --git-dir="${REPO_PATH}" checkout -f main
 
 
 
