@@ -37,11 +37,12 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
         else 
             docker build -t ${app_name,,} ${APP_PATH}
             docker rm -f ${app_name}_container 2> /dev/null 
-            docker run -d --name ${app_name}_container  ${app_name,,}
+            docker run -d --name ${app_name}_container  --network paas_net ${app_name,,}
         fi
     else
-    docker-compose build -f "${YML_FILE}" 
-    docker-compose up -d -f "${YML_FILE}"
+    docker compose build -f "${YML_FILE}" 
+    docker compose  -f "${YML_FILE}"  up -d  #here
+    docker network connect pass_net 
     fi
 
 

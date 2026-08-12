@@ -43,3 +43,16 @@ EOF
 chmod +x "${REPO_PATH}/hooks/post-receive"
 
 echo "Run : git remote add  ${input} ${REPO_PATH}"
+
+if [ ! docker network ls | grep paas_net];
+then
+    docker network create paas_net
+    echo "network "paas_net" created"
+fi
+
+if [ ! docker ps -a --format "{{.Names}} | {{.State}}" | grep mypass_nginx];
+then 
+    docker run -d --name mypass_nginx -p "8081:80" --network pass_net nginx
+fi
+
+
