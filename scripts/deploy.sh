@@ -54,6 +54,7 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
             }
             EOF "
             echo  "${app_name}_container" >> "${PAAS_PATH}/containers/name.log"
+            docker exec mypaas_nginx nginx -s reload
         fi
     else
     echo "PORT=5000" >> "${APP_PATH}/.env"
@@ -76,6 +77,7 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
             }
             EOF"
             echo  "${container_id}" >> "${PAAS_PATH}/containers/name.log"
+            docker exec mypaas_nginx nginx -s reload
 
 
         done
