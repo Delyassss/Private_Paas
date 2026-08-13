@@ -8,6 +8,8 @@ SCRIPT_DIR="$(cd $(dirname "$0") && pwd)"
 
 REPO_PATH="${SCRIPT_DIR}/../repos/${app_name}.git"
 APP_PATH="${SCRIPT_DIR}/../apps/${app_name}"
+PAAS_PATH="${SCRIPT_DIR}/../"
+
 
 if [[ "${app_name}" =~ ^[[:space:]]*$ ]];
 then 
@@ -35,15 +37,53 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
                 echo "did not find Dockerfile either !"
                 exit 1
         else 
+            echo "PORT=5000" >> "${APP_PATH}/.env"
             docker build -t ${app_name,,} ${APP_PATH}
             docker rm -f ${app_name}_container 2> /dev/null 
-            docker run -d --name ${app_name}_container  --network paas_net ${app_name,,}
+            docker run -d --name ${app_name}_container  --network paas_net -e PORT=5000 ${app_name,,} #,, for lowecase
+            docker exec mypaas_nginx  bash -c "cat << EOF >> "/etc/nginx/sites-enabled/${app_name}.conf"
+            server
+            {
+                listen 8081;
+                server_name  "${app_name}".localhost;
+
+                location /
+                {
+                    proxy_pass http://${app_name}:5000;
+                }
+            }
+            EOF "
+            echo  "${app_name}_container" >> "${PAAS_PATH}/containers/name.log"
         fi
     else
-    docker compose build -f "${YML_FILE}" 
-    docker compose  -f "${YML_FILE}"  up -d  #here
-    docker network connect pass_net 
+    echo "PORT=5000" >> "${APP_PATH}/.env"
+    PORT=5000 docker compose build -f "${YML_FILE}" 
+    PORT=5000 docker compose  -f "${YML_FILE}"  up -d  #here
+    for container_id in $(docker compose -f ${YML_FILE} ps -qa);
+        do
+            docker network connect paas_net "${container_id}"
+            docker exec mypaas_nginx  bash -c "cat << EOF >> "/etc/nginx/sites-enabled/${app_name}.conf"
+            server
+            {
+                listen 8081;
+                listen [::]:8081;
+                server_name  "${app_name}".localhost;
+
+                location /
+                {
+                    proxy_pass http://${app_name}:5000;
+                }
+            }
+            EOF"
+            echo  "${container_id}" >> "${PAAS_PATH}/containers/name.log"
+
+
+        done
     fi
+
+
+
+
 
 
 

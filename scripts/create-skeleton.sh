@@ -4,6 +4,12 @@ echo "Usage: $1"
 
 input="$1"
 
+echo -e "Paas services requirement ... \n"
+sleep 2
+echo -e "1 : A dockerfile or conpsoe-file needed \n"
+sleep 2
+echo -e "2 : Your web services must listen to port 5000 \n"
+
 if [[ "${input}" =~ ^[[:space:]]*$ ]];
 then 
    echo "Error: No argument provided."
@@ -44,15 +50,6 @@ chmod +x "${REPO_PATH}/hooks/post-receive"
 
 echo "Run : git remote add  ${input} ${REPO_PATH}"
 
-if [ ! docker network ls | grep paas_net];
-then
-    docker network create paas_net
-    echo "network "paas_net" created"
-fi
 
-if [ ! docker ps -a --format "{{.Names}} | {{.State}}" | grep mypass_nginx];
-then 
-    docker run -d --name mypass_nginx -p "8081:80" --network pass_net nginx
-fi
 
 
