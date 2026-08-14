@@ -9,5 +9,5 @@ fi
 if ! docker ps -a --format "{{.Names}} | {{.State}}" | grep "mypass_nginx | running";
 then 
     docker rm -f mypass_nginx 2> /dev/null 
-    docker run -d --name mypaas_nginx -p "8081:80" --network paas_net nginx
+    docker run -d --restart on-failure --name mypaas_nginx -p "8081:80" --network paas_net nginx
 fi
