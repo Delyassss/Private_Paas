@@ -5,8 +5,8 @@ echo "Usage: $1"
 input="$1"
 
 echo -e "Paas services requirement ... \n"
-sleep 2
-echo -e "1 : A dockerfile or conpsoe-file needed \n"
+sleep 1
+echo -e "1 : A dockerfile or compsoe-file needed \n"
 sleep 2
 echo -e "2 : Your web services must listen to port 5000 \n"
 
@@ -31,7 +31,7 @@ then
     exit 1
 fi
 
-git init --bare "${REPO_PATH}"
+git init --bare "${REPO_PATH}" # git init already create the folder if does not exist
 
 
 mkdir -p "${APP_PATH}"
