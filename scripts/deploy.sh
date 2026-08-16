@@ -54,7 +54,7 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
                 }
             }
             EOF "
-            echo  "${app_name}_container" >> "${PAAS_PATH}/containers/name.log" # here i just save all the container names in file 
+            echo  -e "${app_name}_container\n" >> "${PAAS_PATH}/containers/name.log" # here i just save all the container names in file  and -e for /n
             docker exec mypaas_nginx nginx -s reload # nginx config reload 
         fi
     else
@@ -77,7 +77,7 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
                 }
             }
             EOF"
-            echo  "${container_id}" >> "${PAAS_PATH}/containers/name.log"
+            echo  -e  "${container_id}\n" >> "${PAAS_PATH}/containers/name.log"
             docker exec mypaas_nginx nginx -s reload
 
 
