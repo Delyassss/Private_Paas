@@ -27,6 +27,7 @@ APP_PATH="${SCRIPT_DIR}/../apps/${input}"
 if [ -d "${APP_PATH}" ];
 then 
     echo "APP already exist"
+    echo "Run : git remote add  ${input} ${REPO_PATH}"
     exit 1
 fi
 

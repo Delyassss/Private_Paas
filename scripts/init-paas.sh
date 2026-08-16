@@ -6,8 +6,8 @@ then
     echo "network "paas_net" created"
 fi
 
-if ! docker ps -a --format "{{.Names}} | {{.State}}" | grep "mypass_nginx | running";
+if ! docker ps -a --format "{{.Names}} | {{.State}}" | grep "mypaas_nginx | running";
 then 
-    docker rm -f mypass_nginx 2> /dev/null 
+    docker rm -f mypaas_nginx 2> /dev/null 
     docker run -d --restart on-failure --name mypaas_nginx -p "8081:80" --network paas_net nginx
 fi

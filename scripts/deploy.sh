@@ -45,6 +45,7 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
             server
             {
                 listen 8081;
+                listen [::]:8081;
                 server_name  "${app_name}".localhost;
 
                 location /
@@ -53,14 +54,14 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
                 }
             }
             EOF "
-            echo  "${app_name}_container" >> "${PAAS_PATH}/containers/name.log"
-            docker exec mypaas_nginx nginx -s reload
+            echo  "${app_name}_container" >> "${PAAS_PATH}/containers/name.log" # here i just save all the container names in file 
+            docker exec mypaas_nginx nginx -s reload # nginx config reload 
         fi
     else
     echo "PORT=5000" >> "${APP_PATH}/.env"
     PORT=5000 docker compose build -f "${YML_FILE}" 
     PORT=5000 docker compose  -f "${YML_FILE}"  up -d  && docker update --restart unless-stopped $(docker compose -f ${YML_FILE} ps -aq) #here
-    for container_id in $(docker compose -f ${YML_FILE} ps -qa);
+    for container_id in $(docker compose -f ${YML_FILE} ps -qa); # -q for just the container id 
         do
             docker network connect paas_net "${container_id}"
             docker exec mypaas_nginx  bash -c "cat << EOF >> "/etc/nginx/sites-enabled/${app_name}.conf"
