@@ -44,8 +44,8 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
             docker run -d --restart unless-stopped --name ${app_name}_container  --network paas_net -e PORT=5000 ${app_name,,} #,, for lowecase
              cat << EOF | docker exec -i mypaas_nginx tee "/etc/nginx/conf.d/${app_name}.conf" > /dev/null # the second > to ignore the tee default stdout
 server {
-        listen 8081;
-        listen [::]:8081;
+        listen 80;
+        listen [::]:80;
         server_name  ${app_name,,}.localhost;
 
      location / {
@@ -67,8 +67,8 @@ EOF
             # the second > to ignore the tee default stdout AND the terminating EOF must be at colum 0
             cat << EOF | docker exec -i mypaas_nginx tee "/etc/nginx/conf.d/${service_name}.conf" > /dev/null 
 server {
-    listen 8081;
-    listen [::]:8081;
+    listen 80;
+    listen [::]:80;
     server_name  ${service_name}.localhost;
     
     location /  {
