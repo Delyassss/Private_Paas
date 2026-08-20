@@ -37,51 +37,48 @@ if [[ "${YML_FILE}" =~ ^[[:space:]]*$ ]];
                 echo "did not find Dockerfile either !"
                 exit 1
         else 
+            echo "Using Dockerfile !"
             echo "PORT=5000" >> "${APP_PATH}/.env"
             docker build -t ${app_name,,} ${APP_PATH}
             docker rm -f ${app_name}_container 2> /dev/null 
             docker run -d --restart unless-stopped --name ${app_name}_container  --network paas_net -e PORT=5000 ${app_name,,} #,, for lowecase
-            docker exec mypaas_nginx  bash -c "cat << EOF >> "/etc/nginx/sites-enabled/${app_name}.conf"
-            server
-            {
-                listen 8081;
-                listen [::]:8081;
-                server_name  "${app_name}".localhost;
+             cat << EOF | docker exec -i mypaas_nginx tee "/etc/nginx/conf.d/${app_name}.conf" > /dev/null # the second > to ignore the tee default stdout
+server {
+        listen 8081;
+        listen [::]:8081;
+        server_name  ${app_name,,}.localhost;
 
-                location /
-                {
-                    proxy_pass http://${app_name}:5000;
-                }
-            }
-            EOF "
+     location / {
+        proxy_pass http://${app_name,,}:5000;
+    }
+}
+EOF
             echo  -e "${app_name}_container\n" >> "${PAAS_PATH}/containers/name.log" # here i just save all the container names in file  and -e for /n
-            docker exec mypaas_nginx nginx -s reload # nginx config reload 
         fi
     else
     echo "PORT=5000" >> "${APP_PATH}/.env"
     PORT=5000 docker compose build -f "${YML_FILE}" 
     PORT=5000 docker compose  -f "${YML_FILE}"  up -d  && docker update --restart unless-stopped $(docker compose -f ${YML_FILE} ps -aq) #here
-    for container_id in $(docker compose -f ${YML_FILE} ps -qa); # -q for just the container id 
+    # -q for just the container id 
+    for container_id in $(docker compose -f ${YML_FILE} ps -qa); 
         do
-            docker network connect paas_net "${container_id}"
-            docker exec mypaas_nginx  bash -c "cat << EOF >> "/etc/nginx/sites-enabled/${app_name}.conf"
-            server
-            {
-                listen 8081;
-                listen [::]:8081;
-                server_name  "${app_name}".localhost;
-
-                location /
-                {
-                    proxy_pass http://${app_name}:5000;
-                }
-            }
-            EOF"
-            echo  -e  "${container_id}\n" >> "${PAAS_PATH}/containers/name.log"
+            docker network connect paas_net "${container_id}" 2> /dev/null 
+            service_name=$(docker inspect --format='{{.Name}}' ${container_id} | sed 's^\/^^')
+            # the second > to ignore the tee default stdout AND the terminating EOF must be at colum 0
+            cat << EOF | docker exec -i mypaas_nginx tee "/etc/nginx/conf.d/${service_name}.conf" > /dev/null 
+server {
+    listen 8081;
+    listen [::]:8081;
+    server_name  ${service_name}.localhost;
+    
+    location /  {
+        proxy_pass http://${service_name}:5000;
+    }
+}
+EOF
+    echo  -e  "${container_id}\n" >> "${PAAS_PATH}/containers/name.log"
+    done
             docker exec mypaas_nginx nginx -s reload
-
-
-        done
     fi
 
 

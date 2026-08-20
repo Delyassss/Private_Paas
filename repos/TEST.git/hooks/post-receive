@@ -1,0 +1,8 @@
+#!/bin/bash
+
+while read old_hash new_hash refname ;
+do 
+    /mnt/c/Users/Delyassss/Desktop/donness/Projects/mypaas/scripts/deploy.sh TEST ${refname}
+done
+    
+

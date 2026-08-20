@@ -25,9 +25,12 @@ up :
 
 
 fclean :
+	@echo "Cleaning the containers log file ..."
+	@ echo "" > .containers/name.log
+	@echo "Removing REPOS & APPS DIR"
+	@rm -rf ./repos/*
+	@rm -rf ./apps/*
 	@echo "Removing containers ...";
-
-	@if [ -f ./containers/name.log ];
-		then \
+	@if [ -f ./containers/name.log ]; then \
 		docker rm -f $$(cat ./containers/name.log); \
 	fi

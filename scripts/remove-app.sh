@@ -1,12 +1,24 @@
 #!/bin/bash
 
 app_name="$1"
-z
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" # so dirname strips the no-directory suffixes  dirname a/v/c.txt  -> a/v
 
 APP_PATH="${SCRIPT_DIR}/../apps/${app_name}"
 REPO_PATH="${SCRIPT_DIR}/../repos/${app_name}.git"
-YML_FILE=$(find "${APP_PATH}" -maxdepth 1 -type f -name "docker-compose.yml")
+YML_FILE=$(find "${APP_PATH}" -maxdepth 1 -type f -name "docker-compose.yml" 2>/dev/null)
+
+
+#check if docker compose is up
+
+if ! docker info > /dev/null 2>&1; then
+    echo "Docker is not running !"
+    exit 1
+fi
+
+if  ! docker compose version > /dev/null 2>&1 ; then
+     echo "Docker compose is not running !"
+    exit 1
+fi 
 
 if [[ "${app_name}" =~ ^[[:space:]]*$ ]]; then
     echo "Error: No argument provided."
